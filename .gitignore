@@ -1,5 +1,22 @@
 .DS_Store
-
+*.uasset
+*/*.uasset
+*/*/*.uasset
+*/*/*/*.uasset
+*/*/*/*/*.uasset
+*/*/*/*/*/*.uasset
+*/*/*/*/*/*/*.uasset
+*/*/*/*/*/*/*/*.uasset
+*/*/*/*/*/*/*/*/*.uasset
+*/*/*/*/*/*/*/*/*/*.uasset
+*/*/*/*/*/*/*/*/*/*/*.uasset
+*.umap
+*.mp3
+*.mp4
+*.wav
+*.jpg
+*.png
+*.FBX
 # Visual Studio 2015 user specific files
 .vs/
 

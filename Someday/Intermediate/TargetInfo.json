@@ -1,0 +1,14 @@
+{
+	"Targets": [
+		{
+			"Name": "Someday",
+			"Path": "D:\\GameProject\\Triad\\Someday\\Source\\Someday.Target.cs",
+			"Type": "Game"
+		},
+		{
+			"Name": "SomedayEditor",
+			"Path": "D:\\GameProject\\Triad\\Someday\\Source\\SomedayEditor.Target.cs",
+			"Type": "Editor"
+		}
+	]
+}

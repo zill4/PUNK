@@ -1,0 +1,21 @@
+{
+    "Version": "1.1",
+    "Data": {
+        "Source": "d:\\gameproject\\triad\\someday\\intermediate\\build\\win64\\unrealeditor\\inc\\someday\\somedaycharacter.gen.cpp",
+        "ProvidedModule": "",
+        "PCH": "d:\\gameproject\\triad\\someday\\intermediate\\build\\win64\\somedayeditor\\development\\engine\\sharedpch.engine.shadowerrors.h.pch",
+        "Includes": [
+            "d:\\gameproject\\triad\\someday\\intermediate\\build\\win64\\unrealeditor\\development\\someday\\definitions.someday.h",
+            "d:\\gameproject\\triad\\someday\\source\\someday\\somedaycharacter.h",
+            "d:\\unrealengine\\ue_5.0\\engine\\source\\runtime\\engine\\classes\\gameframework\\character.h",
+            "d:\\unrealengine\\ue_5.0\\engine\\source\\runtime\\engine\\classes\\gameframework\\charactermovementreplication.h",
+            "d:\\unrealengine\\ue_5.0\\engine\\intermediate\\build\\win64\\unrealeditor\\inc\\engine\\charactermovementreplication.generated.h",
+            "d:\\unrealengine\\ue_5.0\\engine\\source\\runtime\\engine\\classes\\gameframework\\rootmotionsource.h",
+            "d:\\unrealengine\\ue_5.0\\engine\\intermediate\\build\\win64\\unrealeditor\\inc\\engine\\rootmotionsource.generated.h",
+            "d:\\unrealengine\\ue_5.0\\engine\\intermediate\\build\\win64\\unrealeditor\\inc\\engine\\character.generated.h",
+            "d:\\gameproject\\triad\\someday\\intermediate\\build\\win64\\unrealeditor\\inc\\someday\\somedaycharacter.generated.h"
+        ],
+        "ImportedModules": [],
+        "ImportedHeaderUnits": []
+    }
+}

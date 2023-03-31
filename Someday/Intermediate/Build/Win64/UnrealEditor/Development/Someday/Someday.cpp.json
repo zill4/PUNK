@@ -1,0 +1,14 @@
+{
+    "Version": "1.1",
+    "Data": {
+        "Source": "d:\\gameproject\\triad\\someday\\source\\someday\\someday.cpp",
+        "ProvidedModule": "",
+        "PCH": "d:\\gameproject\\triad\\someday\\intermediate\\build\\win64\\somedayeditor\\development\\engine\\sharedpch.engine.shadowerrors.h.pch",
+        "Includes": [
+            "d:\\gameproject\\triad\\someday\\intermediate\\build\\win64\\unrealeditor\\development\\someday\\definitions.someday.h",
+            "d:\\gameproject\\triad\\someday\\source\\someday\\someday.h"
+        ],
+        "ImportedModules": [],
+        "ImportedHeaderUnits": []
+    }
+}

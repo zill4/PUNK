@@ -1,5 +1,15 @@
 .DS_Store
 *.uasset
+*/*.uasset
+*/*/*.uasset
+*/*/*/*.uasset
+*/*/*/*/*.uasset
+*/*/*/*/*/*.uasset
+*/*/*/*/*/*/*.uasset
+*/*/*/*/*/*/*/*.uasset
+*/*/*/*/*/*/*/*/*.uasset
+*/*/*/*/*/*/*/*/*/*.uasset
+*/*/*/*/*/*/*/*/*/*/*.uasset
 *.umap
 *.mp3
 *.mp4

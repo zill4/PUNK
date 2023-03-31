@@ -2,46 +2,67 @@
 
 
 #include "Item.h"
-#include "DrawDebugHelpers.h"
+#include "TriadGame/DebugMacros.h"
+#include "Components/SphereComponent.h"
+#include "Characters/MainCharacter.h"
 
-#define THIRTY 30
-#define DRAW_SPHERE(Location) if (GetWorld()) DrawDebugSphere(GetWorld(), Location, 25.f, 24, FColor::Red, true);
 
-// Sets default values
 AItem::AItem()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	ItemMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ItemMeshComponent"));
+	RootComponent = ItemMesh;
+
+	Sphere = CreateDefaultSubobject<USphereComponent>(TEXT("Sphere"));
+	Sphere->SetupAttachment(GetRootComponent());
 }
 
-// Called when the game starts or when spawned
 void AItem::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	UE_LOG(LogTemp, Warning, TEXT("Hello World Called!!!!!!!!!!!!!!!!!!")); // Because this is a macro the semicolon is actually optional.
 
-	UWorld* World = GetWorld();
-
-	if (World)
-	{
-		FVector Location = GetActorLocation();
-		DRAW_SPHERE(Location)
-	}
-
+	// too early to place this is constructor
+	Sphere->OnComponentBeginOverlap.AddDynamic(this, &AItem::OnSphereOverlap);
+	Sphere->OnComponentEndOverlap.AddDynamic(this, &AItem::OnSphereEndOverlap);
 }
 
-// Called every frame
+float AItem::TransformSin()
+{
+	return Amplitude * FMath::Sin(RunningTime * Frequency);
+}
+
+float AItem::TransformCos()
+{
+	return Amplitude * FMath::Cos(RunningTime * Frequency);
+}
+
+void AItem::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (AMainCharacter* MainCharacter = Cast<AMainCharacter>(OtherActor))
+	{
+		MainCharacter->SetOverlappingItem(this);
+	}
+}
+
+void AItem::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	if (AMainCharacter* MainCharacter = Cast<AMainCharacter>(OtherActor))
+	{
+		MainCharacter->SetOverlappingItem(nullptr);
+	}
+}
+
+
 void AItem::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	if (GEngine)
-	{
-		FString Name = GetName();
-		FString Message = FString::Printf(TEXT("Item Name: %s, %f"), *Name, DeltaTime);
-		GEngine->AddOnScreenDebugMessage(1, 60.f, FColor::Cyan, Message);
-	}
+	
+	RunningTime += DeltaTime;
 }
 
+template<typename T>
+inline T AItem::Avg(T First, T Second)
+{
+	return (First + Second) / 2;
+}

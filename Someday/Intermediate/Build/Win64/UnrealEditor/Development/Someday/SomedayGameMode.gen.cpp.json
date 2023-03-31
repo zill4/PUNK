@@ -1,0 +1,19 @@
+{
+    "Version": "1.1",
+    "Data": {
+        "Source": "d:\\gameproject\\triad\\someday\\intermediate\\build\\win64\\unrealeditor\\inc\\someday\\somedaygamemode.gen.cpp",
+        "ProvidedModule": "",
+        "PCH": "d:\\gameproject\\triad\\someday\\intermediate\\build\\win64\\somedayeditor\\development\\engine\\sharedpch.engine.shadowerrors.h.pch",
+        "Includes": [
+            "d:\\gameproject\\triad\\someday\\intermediate\\build\\win64\\unrealeditor\\development\\someday\\definitions.someday.h",
+            "d:\\gameproject\\triad\\someday\\source\\someday\\somedaygamemode.h",
+            "d:\\unrealengine\\ue_5.0\\engine\\source\\runtime\\engine\\classes\\gameframework\\gamemodebase.h",
+            "d:\\unrealengine\\ue_5.0\\engine\\source\\runtime\\engine\\classes\\engine\\serverstatreplicator.h",
+            "d:\\unrealengine\\ue_5.0\\engine\\intermediate\\build\\win64\\unrealeditor\\inc\\engine\\serverstatreplicator.generated.h",
+            "d:\\unrealengine\\ue_5.0\\engine\\intermediate\\build\\win64\\unrealeditor\\inc\\engine\\gamemodebase.generated.h",
+            "d:\\gameproject\\triad\\someday\\intermediate\\build\\win64\\unrealeditor\\inc\\someday\\somedaygamemode.generated.h"
+        ],
+        "ImportedModules": [],
+        "ImportedHeaderUnits": []
+    }
+}

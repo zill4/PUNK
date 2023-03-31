@@ -1,0 +1,57 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <None Include="..\..\Someday.uproject" />
+    <Filter Include="Source">
+      <UniqueIdentifier>{F31BBDD1-B3E8-3BCC-9652-680E16935819}</UniqueIdentifier>
+    </Filter>
+    <None Include="..\..\Source\Someday.Target.cs">
+      <Filter>Source</Filter>
+    </None>
+    <None Include="..\..\Source\SomedayEditor.Target.cs">
+      <Filter>Source</Filter>
+    </None>
+    <Filter Include="Config">
+      <UniqueIdentifier>{FA535FFB-25E1-3D20-B416-52F9BE21E06E}</UniqueIdentifier>
+    </Filter>
+    <None Include="..\..\Config\DefaultEditor.ini">
+      <Filter>Config</Filter>
+    </None>
+    <None Include="..\..\Config\DefaultEditorPerProjectUserSettings.ini">
+      <Filter>Config</Filter>
+    </None>
+    <None Include="..\..\Config\DefaultEngine.ini">
+      <Filter>Config</Filter>
+    </None>
+    <None Include="..\..\Config\DefaultGame.ini">
+      <Filter>Config</Filter>
+    </None>
+    <None Include="..\..\Config\DefaultInput.ini">
+      <Filter>Config</Filter>
+    </None>
+    <Filter Include="Source\Someday">
+      <UniqueIdentifier>{9D3BA3E9-A0EA-3D27-86DF-A6F5F54AB4B9}</UniqueIdentifier>
+    </Filter>
+    <None Include="..\..\Source\Someday\Someday.Build.cs">
+      <Filter>Source\Someday</Filter>
+    </None>
+    <ClCompile Include="..\..\Source\Someday\Someday.cpp">
+      <Filter>Source\Someday</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\Someday\Someday.h">
+      <Filter>Source\Someday</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\Source\Someday\SomedayCharacter.cpp">
+      <Filter>Source\Someday</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\Someday\SomedayCharacter.h">
+      <Filter>Source\Someday</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\Source\Someday\SomedayGameMode.cpp">
+      <Filter>Source\Someday</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\Someday\SomedayGameMode.h">
+      <Filter>Source\Someday</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
