@@ -59,6 +59,11 @@ void AItem::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	
 	RunningTime += DeltaTime;
+
+	if (ItemState == EItemState::Hovering)
+	{
+		AddActorWorldOffset(FVector(0.f, 0.f, TransformSin()) * DeltaTime);
+	}
 }
 
 template<typename T>

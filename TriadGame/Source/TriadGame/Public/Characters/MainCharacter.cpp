@@ -81,24 +81,30 @@ void AMainCharacter::Jump()
 
 void AMainCharacter::Move(const FInputActionValue& Value)
 {
-	//if (ActionState != EActionState::EAS_Unoccupied) return;
-	const FVector2D MovementVector = Value.Get<FVector2D>();
+	float MovementMagnitude = 1.f;
+	// Slow down movement if attacking
+	if (ActionState == ECharacterActionState::Attacking)
+		MovementMagnitude = .25f;
 
-	//const FVector Forward = GetActorForwardVector();
-	//const FVector Right = GetActorRightVector();
+		const FVector2D MovementVector = Value.Get<FVector2D>() * MovementMagnitude;
 
-	//AddMovementInput(Forward, MovementVector.Y);
-	//AddMovementInput(Right, MovementVector.X);
+		//const FVector Forward = GetActorForwardVector();
+		//const FVector Right = GetActorRightVector();
 
-	const FRotator Rotation = Controller->GetControlRotation();
-	const FRotator YawRotation(0, Rotation.Yaw, 0);
+		//AddMovementInput(Forward, MovementVector.Y);
+		//AddMovementInput(Right, MovementVector.X);
 
-	const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-	AddMovementInput(ForwardDirection, MovementVector.Y);
+		const FRotator Rotation = Controller->GetControlRotation();
+		const FRotator YawRotation(0, Rotation.Yaw, 0);
 
-	const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-	AddMovementInput(RightDirection, MovementVector.X);
 
+		const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+		AddMovementInput(ForwardDirection, MovementVector.Y);
+
+		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+		AddMovementInput(RightDirection, MovementVector.X);
+	
+	
 }
 
 void AMainCharacter::Look(const FInputActionValue& Value)
@@ -131,6 +137,7 @@ void AMainCharacter::Interact(const FInputActionValue& Value)
 	{
 		OverlappingWeapon->Equip(GetMesh(), FName("RightHandSocket"));
 		bWeaponDrawn = true;
+		// TODO: This is stupid the state change setup is stupid, needs to be fixed
 		ChangeState(ECharacterStatusChange::Idle);
 	}
 	AMovementItem* OverlappingMovementItem = Cast<AMovementItem>(OverlappingItem);

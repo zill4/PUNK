@@ -8,6 +8,12 @@
 
 class USphereComponent;
 
+enum class EItemState : uint8
+{
+	Hovering,
+	Equipped
+};
+
 
 UCLASS()
 class TRIADGAME_API AItem : public AActor
@@ -25,7 +31,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sine Parameters")
-	float Amplitude = 0.25f;
+	float Amplitude = 5.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sine Parameters")
 	float Frequency = 5.f;
@@ -51,6 +57,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	USphereComponent* Sphere;
 
+	EItemState ItemState = EItemState::Hovering;
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	float RunningTime;

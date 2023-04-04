@@ -78,10 +78,12 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attack")
 	int AttackCombo = 0;
 
+
 	UPROPERTY()
 	FTimerHandle ComboResetTimerHandle;
+
 	UPROPERTY()
-	float ComboCooldown = 6.0f; // 6.0 seconds
+	float ComboCooldown = 3.5f; //6.0 seconds
 
 	UFUNCTION(BlueprintCallable)
 	void AttackEnd();
