@@ -38,6 +38,7 @@ enum class ECharacterActionState : uint8
 {
 	Unoccupied UMETA(DisplayName = "Unoccupied"),
 	Attacking UMETA(DisplayName = "Attacking"),
+	Interacting UMETA(DisplayName = "Interacting"),
 	Dodging UMETA(DisplayName = "Dodging"),
 	Blocking UMETA(DisplayName = "Blocking"),
 	Parrying UMETA(DisplayName = "Parrying"),

@@ -19,6 +19,7 @@
 #include "MovementItem.h"
 // Animations
 #include "Animation/AnimMontage.h"
+#include "Components/BoxComponent.h"
 
 // Sets default values
 AMainCharacter::AMainCharacter()
@@ -83,8 +84,15 @@ void AMainCharacter::Move(const FInputActionValue& Value)
 {
 	float MovementMagnitude = 1.f;
 	// Slow down movement if attacking
-	if (ActionState == ECharacterActionState::Attacking)
+	if (ActionState == ECharacterActionState::Attacking || ActionState == ECharacterActionState::Interacting)
 		MovementMagnitude = .25f;
+	else if (CharacterState != ECharacterState::SprintingEquipped && CharacterState != ECharacterState::SprintingUnequipped && CharacterState != ECharacterState::Skating)
+		ChangeState(ECharacterStatusChange::Walking);
+	else if (CharacterState != ECharacterState::Skating)
+		ChangeState(ECharacterStatusChange::Sprinting);
+	else
+		ChangeState(ECharacterStatusChange::Skating);
+
 
 		const FVector2D MovementVector = Value.Get<FVector2D>() * MovementMagnitude;
 
@@ -125,7 +133,9 @@ void AMainCharacter::StartSprint(const FInputActionValue& Value)
 void AMainCharacter::StopSprint(const FInputActionValue& Value)
 {
 	bIsSprinting = false;
-	GetCharacterMovement()->MaxWalkSpeed = 500.f;
+	//TODO: THIS IS SPAGHETTI CODE
+	if (CharacterState != ECharacterState::Skating)
+		GetCharacterMovement()->MaxWalkSpeed = 500.f;
 	ChangeState(ECharacterStatusChange::Walking);
 }
 
@@ -133,7 +143,12 @@ void AMainCharacter::Interact(const FInputActionValue& Value)
 {
 	// TODO: Refactor for all overlap events
 	AWeapon* OverlappingWeapon = Cast<AWeapon>(OverlappingItem);
-	if (OverlappingWeapon)
+	AMovementItem* OverlappingMovementItem = Cast<AMovementItem>(OverlappingItem);
+	// Debug
+	/*if (GEngine)
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, FString::Printf(TEXT("Interact Pressed OW: %d bWD: %d, CharState: %d, ActState: %d"), OverlappingWeapon, bWeaponDrawn, CharacterState, ActionState));*/
+
+	if (OverlappingWeapon && !EquippedWeapon)
 	{
 		OverlappingWeapon->Equip(GetMesh(), FName("RightHandSocket"));
 		EquippedWeapon = OverlappingWeapon;
@@ -141,27 +156,35 @@ void AMainCharacter::Interact(const FInputActionValue& Value)
 		// TODO: This is stupid the state change setup is stupid, needs to be fixed
 		ChangeState(ECharacterStatusChange::Idle);
 	}
-	else
-	{
-		PlayEquipWeaponMontage(FName("Unequip"));
-		CharacterState = ECharacterState::IdleUnequipped;
-		//if (bWeaponDrawn)
-		//{
-		//}
-		if (CanEquipWeapon())
-		{
-			PlayEquipWeaponMontage(FName("Equip"));
-			CharacterState = ECharacterState::IdleEquipped;
-		}
-		
-	}
-
-	AMovementItem* OverlappingMovementItem = Cast<AMovementItem>(OverlappingItem);
-	if (OverlappingMovementItem)
+	else if (OverlappingMovementItem)
 	{
 		GetCharacterMovement()->MaxWalkSpeed = 1000.f;
 		OverlappingMovementItem->Equip(GetMesh(), FName("foot_l_Socket"));
 		ChangeState(ECharacterStatusChange::Skating);
+	}
+	else
+	{
+		if (bWeaponDrawn)
+		{
+			if (CanUnequipWeapon())
+			{
+				ActionState = ECharacterActionState::Interacting;
+				PlayEquipWeaponMontage(FName("Unequip"));
+				CharacterState = ECharacterState::IdleUnequipped;
+				bWeaponDrawn = false;
+			}
+		}
+		else 
+		{
+			if (CanEquipWeapon())
+			{
+				ActionState = ECharacterActionState::Interacting;
+				PlayEquipWeaponMontage(FName("Equip"));
+				CharacterState = ECharacterState::IdleEquipped;
+				bWeaponDrawn = true;
+			}
+		}
+		
 	}
 }
 
@@ -197,15 +220,15 @@ void AMainCharacter::ResetCombo()
 
 bool AMainCharacter::CanUnequipWeapon()
 {
-	return (ActionState == ECharacterActionState::Unoccupied && bWeaponDrawn && EquipWeaponMontage && EquippedWeapon);
+	return (ActionState == ECharacterActionState::Unoccupied && EquipWeaponMontage && EquippedWeapon);
 }
 
 bool AMainCharacter::CanEquipWeapon()
 {
-	return (ActionState != ECharacterActionState::Unoccupied && !bWeaponDrawn && EquipWeaponMontage && EquippedWeapon);
+	return (ActionState == ECharacterActionState::Unoccupied && EquipWeaponMontage && EquippedWeapon);
 }
 
-void AMainCharacter::PlayEquipWeaponMontage(FName SectionName)
+void AMainCharacter::PlayEquipWeaponMontage(const FName& SectionName)
 {
 	if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
 	{
@@ -231,8 +254,26 @@ void AMainCharacter::StopAttack(const FInputActionValue& Value)
 void AMainCharacter::ChangeState(ECharacterStatusChange DesiredStatus)
 {
 	// Basically if state is equipped
-	if (bWeaponDrawn)
+	// TODO: This is terrible must refactor
+	if (CharacterState == ECharacterState::Skating)
 	{
+		switch (DesiredStatus)
+		{
+		case ECharacterStatusChange::Jumping:
+			CharacterState = ECharacterState::Jumping;
+			break;
+		case ECharacterStatusChange::Dead:
+			CharacterState = ECharacterState::Dead;
+			break;
+		case ECharacterStatusChange::Dodging:
+			CharacterState = ECharacterState::Dodging;
+			break;
+		case ECharacterStatusChange::Attacking:
+			CharacterState = ECharacterState::Attacking;
+			break;
+		default: CharacterState = ECharacterState::Skating;
+		}
+	} else if (bWeaponDrawn) {
 		switch (DesiredStatus)
 		{
 		case ECharacterStatusChange::Idle:
@@ -295,6 +336,33 @@ void AMainCharacter::ChangeState(ECharacterStatusChange DesiredStatus)
 	}
 }
 
+void AMainCharacter::Disarm()
+{
+
+	if (EquippedWeapon)
+	{
+		bWeaponDrawn = false;
+		ChangeState(ECharacterStatusChange::Idle);
+		EquippedWeapon->AttachMeshToSocket(GetMesh(), FName("SpineSocket"));
+	}
+}
+
+void AMainCharacter::Arm()
+{
+
+	if (EquippedWeapon)
+	{
+		EquippedWeapon->AttachMeshToSocket(GetMesh(), FName("RightHandSocket"));
+		bWeaponDrawn = true;
+		ChangeState(ECharacterStatusChange::Idle);
+	}
+}
+
+void AMainCharacter::EnterUnoccupied()
+{
+	ActionState = ECharacterActionState::Unoccupied;
+}
+
 void AMainCharacter::AttackEnd()
 {
 	ActionState = ECharacterActionState::Unoccupied;
@@ -315,6 +383,15 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started , this, &AMainCharacter::Interact);
 		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &AMainCharacter::Attack);
 		//EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Completed, this, &AMainCharacter::StopAttack);
+	}
+}
+
+void AMainCharacter::SetWeaponCollisionEnabled(ECollisionEnabled::Type CollisionEnabled)
+{
+	if (EquippedWeapon && EquippedWeapon->GetWeaponCollision())
+	{
+		EquippedWeapon->GetWeaponCollision()->SetCollisionEnabled(CollisionEnabled);
+		EquippedWeapon->IgnoreActors.Empty();
 	}
 }
 

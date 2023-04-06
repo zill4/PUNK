@@ -31,7 +31,11 @@ public:
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	UFUNCTION(BlueprintCallable)
+	void SetWeaponCollisionEnabled(ECollisionEnabled::Type CollisionEnabled);
 
+	//UFUNCTION()
+	//void DisableWeaponCollision();
 
 protected:
 	virtual void BeginPlay() override;
@@ -93,6 +97,16 @@ protected:
 
 	// Returns the proper state if the character is holding a weapon
 	void ChangeState(ECharacterStatusChange DesiredStatus);
+
+	UFUNCTION(BlueprintCallable)
+	void Disarm();
+
+	UFUNCTION(BlueprintCallable)
+	void Arm();
+
+	UFUNCTION(BlueprintCallable)
+	void EnterUnoccupied();
+
 private:
 	// Camera
 	UPROPERTY(VisibleAnywhere)
@@ -124,7 +138,7 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Montages")
 	UAnimMontage* EquipWeaponMontage;
 
-	void PlayEquipWeaponMontage(FName SectionName);
+	void PlayEquipWeaponMontage(const FName& SectionName);
 
 	// Attack Combo
 	void StopCombo();
