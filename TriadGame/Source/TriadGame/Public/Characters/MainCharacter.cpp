@@ -136,10 +136,26 @@ void AMainCharacter::Interact(const FInputActionValue& Value)
 	if (OverlappingWeapon)
 	{
 		OverlappingWeapon->Equip(GetMesh(), FName("RightHandSocket"));
+		EquippedWeapon = OverlappingWeapon;
 		bWeaponDrawn = true;
 		// TODO: This is stupid the state change setup is stupid, needs to be fixed
 		ChangeState(ECharacterStatusChange::Idle);
 	}
+	else
+	{
+		PlayEquipWeaponMontage(FName("Unequip"));
+		CharacterState = ECharacterState::IdleUnequipped;
+		//if (bWeaponDrawn)
+		//{
+		//}
+		if (CanEquipWeapon())
+		{
+			PlayEquipWeaponMontage(FName("Equip"));
+			CharacterState = ECharacterState::IdleEquipped;
+		}
+		
+	}
+
 	AMovementItem* OverlappingMovementItem = Cast<AMovementItem>(OverlappingItem);
 	if (OverlappingMovementItem)
 	{
@@ -177,6 +193,25 @@ void AMainCharacter::ResetCombo()
 {
 	AttackCombo = 0;
 	StopCombo();
+}
+
+bool AMainCharacter::CanUnequipWeapon()
+{
+	return (ActionState == ECharacterActionState::Unoccupied && bWeaponDrawn && EquipWeaponMontage && EquippedWeapon);
+}
+
+bool AMainCharacter::CanEquipWeapon()
+{
+	return (ActionState != ECharacterActionState::Unoccupied && !bWeaponDrawn && EquipWeaponMontage && EquippedWeapon);
+}
+
+void AMainCharacter::PlayEquipWeaponMontage(FName SectionName)
+{
+	if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
+	{
+		AnimInstance->Montage_Play(EquipWeaponMontage);
+		AnimInstance->Montage_JumpToSection(SectionName, EquipWeaponMontage);
+	}
 }
 
 void AMainCharacter::StopCombo()

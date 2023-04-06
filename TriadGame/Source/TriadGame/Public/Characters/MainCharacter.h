@@ -15,6 +15,7 @@ class UCameraComponent;
 class UGroomComponent;
 class AItem;
 class UAnimMontage;
+class AWeapon;
 
 UCLASS()
 class TRIADGAME_API AMainCharacter : public ACharacter
@@ -78,12 +79,11 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attack")
 	int AttackCombo = 0;
 
-
 	UPROPERTY()
 	FTimerHandle ComboResetTimerHandle;
 
 	UPROPERTY()
-	float ComboCooldown = 3.5f; //6.0 seconds
+	float ComboCooldown = 3.5f;
 
 	UFUNCTION(BlueprintCallable)
 	void AttackEnd();
@@ -116,13 +116,27 @@ private:
 
 	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "True"))
 	ECharacterActionState ActionState = ECharacterActionState::Unoccupied;
+
 	// Animation Montages
 	UPROPERTY(EditDefaultsOnly, Category = "Montages")
 	UAnimMontage* AttackMontage;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Montages")
+	UAnimMontage* EquipWeaponMontage;
+
+	void PlayEquipWeaponMontage(FName SectionName);
+
 	// Attack Combo
 	void StopCombo();
 	void ResetCombo();
+
+	// Status checks
+	bool CanUnequipWeapon();
+	bool CanEquipWeapon();
+
+	// Weapon
+	UPROPERTY(VisibleAnywhere, Category = "Weapon")
+	AWeapon* EquippedWeapon;
 
 public:
 	FORCEINLINE void SetOverlappingItem(AItem* Item) { OverlappingItem = Item; }
