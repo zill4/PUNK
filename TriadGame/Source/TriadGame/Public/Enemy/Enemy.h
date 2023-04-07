@@ -8,6 +8,7 @@
 #include "Enemy.generated.h"
 
 class UAnimMontage;
+class USoundBase;
 UCLASS()
 class TRIADGAME_API AEnemy : public ACharacter, public IHitInterface
 {
@@ -24,8 +25,15 @@ protected:
 	virtual void BeginPlay() override;
 
 	void PlayHitReactMontage(const FName& SectionName);
+	void DirectionalHitReaction(const FVector& ImpactPoint);
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Montages")
 	UAnimMontage* HitReactMontage;
+
+	UPROPERTY(EditAnywhere, Category = "Sounds")
+	USoundBase* HitSound;
+
+	UPROPERTY(EditAnywhere, Category = "Particles")
+	UParticleSystem* HitParticles;
 public:	
 };
