@@ -8,7 +8,7 @@ public class TriadGame : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "HeadMountedDisplay", "EnhancedInput", "HairStrandsCore" });
-		PrivateDependencyModuleNames.AddRange(new string[] {"EnhancedInput" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "HeadMountedDisplay", "EnhancedInput", "HairStrandsCore", "GeometryCollectionEngine", "Niagara", "UMG" });
+		/*PrivateDependencyModuleNames.AddRange(new string[] {"EnhancedInput" });*/
     }
 }

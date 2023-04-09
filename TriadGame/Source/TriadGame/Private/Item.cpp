@@ -5,6 +5,7 @@
 #include "TriadGame/DebugMacros.h"
 #include "Components/SphereComponent.h"
 #include "Characters/MainCharacter.h"
+#include "NiagaraComponent.h"
 
 
 AItem::AItem()
@@ -16,6 +17,9 @@ AItem::AItem()
 
 	Sphere = CreateDefaultSubobject<USphereComponent>(TEXT("Sphere"));
 	Sphere->SetupAttachment(GetRootComponent());
+
+	ItemParticles = CreateDefaultSubobject<UNiagaraComponent>(TEXT("ItemParticles"));
+	ItemParticles->SetupAttachment(GetRootComponent());
 }
 
 void AItem::BeginPlay()

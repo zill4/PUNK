@@ -6,6 +6,7 @@
 #include "Components/BoxComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Interfaces/HitInterface.h"
+#include "NiagaraComponent.h"
 
 AWeapon::AWeapon()
 {
@@ -37,6 +38,11 @@ void AWeapon::Equip(USceneComponent* InParent, FName InSocketName)
 {
 	AttachMeshToSocket(InParent, InSocketName);
 	ItemState = EItemState::Equipped;
+
+	if (ItemParticles)
+	{
+		ItemParticles->Deactivate();
+	}
 }
 
 void AWeapon::AttachMeshToSocket(USceneComponent* InParent, const FName& InSocketName)
@@ -78,9 +84,12 @@ void AWeapon::OnBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 	{
 		if (IHitInterface* HitInterface = Cast<IHitInterface>(HitResult.GetActor()))
 		{
-			HitInterface->GetHit(HitResult.ImpactPoint);
+			//HitInterface->GetHit(HitResult.ImpactPoint);
+			HitInterface->Execute_GetHit(HitResult.GetActor(), HitResult.ImpactPoint);
 		}
 		IgnoreActors.AddUnique(HitResult.GetActor());
+
+		CreateFields(HitResult.ImpactPoint);
 	}
 
 }

@@ -9,6 +9,8 @@
 
 class UAnimMontage;
 class USoundBase;
+class UAttributeComponent;
+class UWidgetComponent;
 UCLASS()
 class TRIADGAME_API AEnemy : public ACharacter, public IHitInterface
 {
@@ -20,13 +22,19 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	virtual void GetHit(const FVector& ImpactPoint) override;
+	virtual void GetHit_Implementation(const FVector& ImpactPoint) override;
 protected:
 	virtual void BeginPlay() override;
 
 	void PlayHitReactMontage(const FName& SectionName);
 	void DirectionalHitReaction(const FVector& ImpactPoint);
 private:
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	UAttributeComponent* Attributes;
+
+	UPROPERTY(VisibleAnywhere, Category = "HUD")
+	UWidgetComponent* HealthBar;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Montages")
 	UAnimMontage* HitReactMontage;
 
