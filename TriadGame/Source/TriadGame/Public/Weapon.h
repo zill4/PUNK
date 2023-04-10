@@ -23,6 +23,8 @@ public:
 	void AttachMeshToSocket(USceneComponent* InParent, const FName& InSocketName);
 
 	TArray<AActor*> IgnoreActors;
+
+	void DisableSphereCollision();
 protected:
 
 	virtual void BeginPlay() override;
@@ -38,7 +40,13 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent)
 	void CreateFields(const FVector& FieldLocation);
 
+	bool ActorIsSameType(AActor* OtherActor, const FName& ActorName);
+
+	void ExecuteGetHit(FHitResult& HitResult);
+
 private:
+
+	void BoxTrace(FHitResult& HitResult);
 
 	//TODO: Add equip weapon sound USoundBase
 	UPROPERTY(VisibleAnywhere)
@@ -52,6 +60,11 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
 	float Damage = 20.f;
+
+	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
+	FVector BoxTraceExtent = FVector(5.f);
+
+	bool bShowBoxDebug = false;
 
 public:
 	FORCEINLINE UBoxComponent* GetWeaponCollision() const { return WeaponCollision; }

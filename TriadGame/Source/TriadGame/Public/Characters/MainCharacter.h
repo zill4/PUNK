@@ -25,9 +25,7 @@ public:
 	AMainCharacter();
 
 	virtual void Jump() override;
-
-	virtual void Tick(float DeltaTime) override;
-
+	virtual void GetHit_Implementation(const FVector& ImpactPoint) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	//UFUNCTION()

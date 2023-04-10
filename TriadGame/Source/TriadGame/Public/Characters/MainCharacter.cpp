@@ -20,12 +20,12 @@
 // Animations
 #include "Animation/AnimMontage.h"
 #include "Components/BoxComponent.h"
+// Mesh / Collision
+#include "Components/StaticMeshComponent.h"
 
-// Sets default values
 AMainCharacter::AMainCharacter()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	// Movement
 	GetCharacterMovement()->bOrientRotationToMovement = true;
@@ -43,6 +43,11 @@ AMainCharacter::AMainCharacter()
 	ViewCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("ViewCamera"));
 	ViewCamera->SetupAttachment(SpringArm);
 
+	GetMesh()->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
+	GetMesh()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
+	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Overlap);
+	GetMesh()->SetGenerateOverlapEvents(true);
 	// Groom
 	/*Hair = CreateDefaultSubobject<UGroomComponent>(TEXT("Hair"));
 	Hair->SetupAttachment(GetMesh());
@@ -53,7 +58,6 @@ AMainCharacter::AMainCharacter()
 	Eyebrows->AttachmentName = FString("head");*/
 }
 
-// Called when the game starts or when spawned
 void AMainCharacter::BeginPlay()
 {
 	Super::BeginPlay();
@@ -68,16 +72,16 @@ void AMainCharacter::BeginPlay()
 	Tags.Add(FName("Player"));
 }
 
-// Called every frame
-void AMainCharacter::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-}
-
 
 void AMainCharacter::Jump()
 {
 	Super::Jump();
+}
+
+void AMainCharacter::GetHit_Implementation(const FVector& ImpactPoint)
+{
+	PlayHitSound(ImpactPoint);
+	SpawnHitParticles(ImpactPoint);
 }
 
 void AMainCharacter::Move(const FInputActionValue& Value)
@@ -202,8 +206,6 @@ void AMainCharacter::Attack(const FInputActionValue& Value)
 
 			AnimInstance->Montage_Play(AttackMontage);
 			AnimInstance->Montage_JumpToSection(FName(*FString::Printf(TEXT("Attack%d"), AttackCombo)), AttackMontage);
-
-			//UE_LOG(LogTemp, Warning, TEXT("AttackCombo: Attack%d"), AttackCombo)
 			AttackCombo = (AttackCombo + 1) % 3;
 
 			//if (CharacterState == ECharacterState::Equipped2HWeapon)
