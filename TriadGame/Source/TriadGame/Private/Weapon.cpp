@@ -5,6 +5,7 @@
 #include "Characters/MainCharacter.h"
 #include "Components/BoxComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Kismet/GameplayStatics.h"
 #include "Interfaces/HitInterface.h"
 #include "NiagaraComponent.h"
 
@@ -34,11 +35,12 @@ void AWeapon::BeginPlay()
 	WeaponCollision->OnComponentBeginOverlap.AddDynamic(this, &AWeapon::OnBoxOverlap);
 }
 
-void AWeapon::Equip(USceneComponent* InParent, FName InSocketName)
+void AWeapon::Equip(USceneComponent* InParent, FName InSocketName, AActor* NewOwner, APawn* NewInstigator)
 {
 	AttachMeshToSocket(InParent, InSocketName);
 	ItemState = EItemState::Equipped;
-
+	SetOwner(NewOwner);
+	SetInstigator(NewInstigator);
 	if (ItemParticles)
 	{
 		ItemParticles->Deactivate();
@@ -82,6 +84,8 @@ void AWeapon::OnBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 
 	if (HitResult.GetActor())
 	{
+		UGameplayStatics::ApplyDamage(HitResult.GetActor(), Damage, GetInstigator()->GetController(), this, UDamageType::StaticClass());
+
 		if (IHitInterface* HitInterface = Cast<IHitInterface>(HitResult.GetActor()))
 		{
 			//HitInterface->GetHit(HitResult.ImpactPoint);
@@ -90,6 +94,7 @@ void AWeapon::OnBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 		IgnoreActors.AddUnique(HitResult.GetActor());
 
 		CreateFields(HitResult.ImpactPoint);
+
 	}
 
 }

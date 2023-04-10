@@ -65,7 +65,7 @@ void AMainCharacter::BeginPlay()
 			Subsystem->AddMappingContext(IMCContext, 0);
 		}
 	}
-	
+	Tags.Add(FName("Player"));
 }
 
 // Called every frame
@@ -150,7 +150,7 @@ void AMainCharacter::Interact(const FInputActionValue& Value)
 
 	if (OverlappingWeapon && !EquippedWeapon)
 	{
-		OverlappingWeapon->Equip(GetMesh(), FName("RightHandSocket"));
+		OverlappingWeapon->Equip(GetMesh(), FName("RightHandSocket"), this, this);
 		EquippedWeapon = OverlappingWeapon;
 		bWeaponDrawn = true;
 		// TODO: This is stupid the state change setup is stupid, needs to be fixed
@@ -190,7 +190,9 @@ void AMainCharacter::Interact(const FInputActionValue& Value)
 
 void AMainCharacter::Attack(const FInputActionValue& Value)
 {
-	if (ActionState != ECharacterActionState::Attacking && bWeaponDrawn)
+	Super::Attack(Value);
+
+	if (ActionState != ECharacterActionState::Attacking && CanAttack())
 	{
 		ActionState = ECharacterActionState::Attacking;
 		if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
@@ -201,7 +203,7 @@ void AMainCharacter::Attack(const FInputActionValue& Value)
 			AnimInstance->Montage_Play(AttackMontage);
 			AnimInstance->Montage_JumpToSection(FName(*FString::Printf(TEXT("Attack%d"), AttackCombo)), AttackMontage);
 
-			UE_LOG(LogTemp, Warning, TEXT("AttackCombo: Attack%d"), AttackCombo)
+			//UE_LOG(LogTemp, Warning, TEXT("AttackCombo: Attack%d"), AttackCombo)
 			AttackCombo = (AttackCombo + 1) % 3;
 
 			//if (CharacterState == ECharacterState::Equipped2HWeapon)
@@ -249,6 +251,11 @@ void AMainCharacter::StopAttack(const FInputActionValue& Value)
 	//	CharacterState = ECharacterState::Equipped2HWeapon;
 	//	// Would reset AttackCombo here, but it should be based on time not last played
 	//}
+}
+
+bool AMainCharacter::CanAttack()
+{
+	return bWeaponDrawn;
 }
 
 void AMainCharacter::ChangeState(ECharacterStatusChange DesiredStatus)
@@ -385,13 +392,3 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 		//EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Completed, this, &AMainCharacter::StopAttack);
 	}
 }
-
-void AMainCharacter::SetWeaponCollisionEnabled(ECollisionEnabled::Type CollisionEnabled)
-{
-	if (EquippedWeapon && EquippedWeapon->GetWeaponCollision())
-	{
-		EquippedWeapon->GetWeaponCollision()->SetCollisionEnabled(CollisionEnabled);
-		EquippedWeapon->IgnoreActors.Empty();
-	}
-}
-

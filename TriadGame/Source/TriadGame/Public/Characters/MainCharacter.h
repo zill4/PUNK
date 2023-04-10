@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Character.h"
+#include "BaseCharacter.h"
 #include "InputActionValue.h"
 #include "CharacterTypes.h"
 #include "MainCharacter.generated.h"
@@ -15,10 +15,9 @@ class UCameraComponent;
 class UGroomComponent;
 class AItem;
 class UAnimMontage;
-class AWeapon;
 
 UCLASS()
-class TRIADGAME_API AMainCharacter : public ACharacter
+class TRIADGAME_API AMainCharacter : public ABaseCharacter
 {
 	GENERATED_BODY()
 
@@ -30,9 +29,6 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-	UFUNCTION(BlueprintCallable)
-	void SetWeaponCollisionEnabled(ECollisionEnabled::Type CollisionEnabled);
 
 	//UFUNCTION()
 	//void DisableWeaponCollision();
@@ -76,7 +72,7 @@ protected:
 	void StartSprint(const FInputActionValue& Value);
 	void StopSprint(const FInputActionValue& Value);
 	void Interact(const FInputActionValue& Value);
-	void Attack(const FInputActionValue& Value);
+	virtual void Attack(const FInputActionValue& Value) override;
 	void StopAttack(const FInputActionValue& Value);
 
 	// Attack Related
@@ -89,11 +85,12 @@ protected:
 	UPROPERTY()
 	float ComboCooldown = 3.5f;
 
-	UFUNCTION(BlueprintCallable)
-	void AttackEnd();
+	virtual void AttackEnd() override;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Status")
 	bool bWeaponDrawn = false;
+
+	virtual bool CanAttack() override;
 
 	// Returns the proper state if the character is holding a weapon
 	void ChangeState(ECharacterStatusChange DesiredStatus);
@@ -131,9 +128,7 @@ private:
 	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "True"))
 	ECharacterActionState ActionState = ECharacterActionState::Unoccupied;
 
-	// Animation Montages
-	UPROPERTY(EditDefaultsOnly, Category = "Montages")
-	UAnimMontage* AttackMontage;
+
 
 	UPROPERTY(EditDefaultsOnly, Category = "Montages")
 	UAnimMontage* EquipWeaponMontage;
@@ -148,9 +143,6 @@ private:
 	bool CanUnequipWeapon();
 	bool CanEquipWeapon();
 
-	// Weapon
-	UPROPERTY(VisibleAnywhere, Category = "Weapon")
-	AWeapon* EquippedWeapon;
 
 public:
 	FORCEINLINE void SetOverlappingItem(AItem* Item) { OverlappingItem = Item; }

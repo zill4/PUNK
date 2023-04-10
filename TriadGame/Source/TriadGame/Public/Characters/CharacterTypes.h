@@ -45,3 +45,23 @@ enum class ECharacterActionState : uint8
 	Stunned UMETA(DisplayName = "Stunned"),
 	Dead UMETA(DisplayName = "Dead")
 };
+
+UENUM(BlueprintType)
+enum class EDeathPose : uint8
+{
+	Alive UMETA(DisplayName = "Alive"),
+	Death1 UMETA(DisplayName= "Death1"),
+	Death2 UMETA(DisplayName= "Death2"),
+	//Death3 UMETA(DisplayName= "Death3")
+};
+
+
+UENUM(BlueprintType)
+enum class EEnemyState : uint8
+{
+	Dead UMETA(DisplayName = "Dead"),
+	Patrolling UMETA(DisplayName = "Patrolling"),
+	Chasing UMETA(DisplayName= "Chasing"),
+	Attacking UMETA(DisplayName= "Attacking"),
+	Engaged UMETA(DisplayName = "Engaged")
+};

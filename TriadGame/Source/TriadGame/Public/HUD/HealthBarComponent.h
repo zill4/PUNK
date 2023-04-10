@@ -9,9 +9,16 @@
 /**
  * 
  */
+class UHealthBar;
 UCLASS()
 class TRIADGAME_API UHealthBarComponent : public UWidgetComponent
 {
 	GENERATED_BODY()
-	
+
+public:
+	void SetHealthPercent(float Percent);
+
+private:
+	UPROPERTY()
+	UHealthBar* HealthBarWidget;
 };
