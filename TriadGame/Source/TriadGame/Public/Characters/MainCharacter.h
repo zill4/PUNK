@@ -6,6 +6,7 @@
 #include "BaseCharacter.h"
 #include "InputActionValue.h"
 #include "CharacterTypes.h"
+#include "Interfaces/PickupInterface.h"
 #include "MainCharacter.generated.h"
 
 class UInputMappingContext;
@@ -14,10 +15,12 @@ class USpringArmComponent;
 class UCameraComponent;
 class UGroomComponent;
 class AItem;
+class ASoul;
 class UAnimMontage;
-
+class UMainCharacterOverlay;
+class ATreasure;
 UCLASS()
-class TRIADGAME_API AMainCharacter : public ABaseCharacter
+class TRIADGAME_API AMainCharacter : public ABaseCharacter, public IPickupInterface
 {
 	GENERATED_BODY()
 
@@ -25,15 +28,20 @@ public:
 	AMainCharacter();
 
 	virtual void Jump() override;
-	virtual void GetHit_Implementation(const FVector& ImpactPoint) override;
+	virtual void GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
+	virtual void SetOverlappingItem(AItem* Item) override;
+	virtual void AddSouls(ASoul *Soul) override;
+	virtual void AddGold(ATreasure* Treasure) override;
 	//UFUNCTION()
 	//void DisableWeaponCollision();
 
 protected:
 	virtual void BeginPlay() override;
 
+	void InitializeMainCharacterOverlay(APlayerController* PlayerController);
+	
 	// Input Variables
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	bool bIsSprinting = false;
@@ -71,6 +79,7 @@ protected:
 	void StopSprint(const FInputActionValue& Value);
 	void Interact(const FInputActionValue& Value);
 	virtual void Attack(const FInputActionValue& Value) override;
+	virtual void Die() override;
 	void StopAttack(const FInputActionValue& Value);
 
 	// Attack Related
@@ -101,6 +110,12 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 	void EnterUnoccupied();
+
+	UFUNCTION(BlueprintCallable)
+	void HitReactEnd();
+
+	UPROPERTY()
+	UMainCharacterOverlay* MainCharacterOverlay;
 
 private:
 	// Camera
@@ -143,7 +158,8 @@ private:
 
 
 public:
-	FORCEINLINE void SetOverlappingItem(AItem* Item) { OverlappingItem = Item; }
+	//FORCEINLINE void SetOverlappingItem(AItem* Item) { OverlappingItem = Item; }
 	FORCEINLINE ECharacterState GetCharacterState() const { return CharacterState; }
 	FORCEINLINE int GetAttackCombo() const { return AttackCombo; }
+	FORCEINLINE ECharacterActionState GetCharacterActionState() const { return ActionState; }
 };

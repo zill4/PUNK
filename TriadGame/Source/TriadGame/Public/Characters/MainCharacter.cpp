@@ -22,6 +22,14 @@
 #include "Components/BoxComponent.h"
 // Mesh / Collision
 #include "Components/StaticMeshComponent.h"
+// Attributes
+#include "Components/AttributeComponent.h"
+//UI
+#include "HUD/TriadGameHUD.h"
+#include "HUD/MainCharacterOverlay.h"
+#include "TriadGame/DebugMacros.h"
+#include "Soul.h"
+#include "Treasure.h"
 
 AMainCharacter::AMainCharacter()
 {
@@ -61,9 +69,11 @@ AMainCharacter::AMainCharacter()
 void AMainCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
-	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
+	
+	APlayerController* PlayerController = Cast<APlayerController>(Controller);
+	if (PlayerController)
 	{
+		InitializeMainCharacterOverlay(PlayerController);
 		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
 		{
 			Subsystem->AddMappingContext(IMCContext, 0);
@@ -72,20 +82,45 @@ void AMainCharacter::BeginPlay()
 	Tags.Add(FName("Player"));
 }
 
+void AMainCharacter::InitializeMainCharacterOverlay(APlayerController* PlayerController)
+{
+	ATriadGameHUD* TriadGameHUD = Cast<ATriadGameHUD>(PlayerController->GetHUD());
+	if (TriadGameHUD)
+	{
+		MainCharacterOverlay = TriadGameHUD->GetMainCharacterOverlay();
+
+		if (MainCharacterOverlay && Attributes)
+		{
+			MainCharacterOverlay->SetHealthPercentage(Attributes->GetHealthPercent());
+			MainCharacterOverlay->SetStaminaPercentage(1.f);
+			MainCharacterOverlay->SetGoldCount(0);
+			MainCharacterOverlay->SetSoulCount(0);
+		}
+	}
+}
+
 
 void AMainCharacter::Jump()
 {
-	Super::Jump();
+	if (ActionState == ECharacterActionState::Unoccupied)
+	{
+		Super::Jump();
+	}
 }
 
-void AMainCharacter::GetHit_Implementation(const FVector& ImpactPoint)
+void AMainCharacter::GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter)
 {
-	PlayHitSound(ImpactPoint);
-	SpawnHitParticles(ImpactPoint);
+	Super::GetHit_Implementation(ImpactPoint, Hitter);
+	if (Attributes && Attributes->GetHealthPercent() > 0.f)
+		ActionState = ECharacterActionState::HitReaction;
+
+	SetWeaponCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void AMainCharacter::Move(const FInputActionValue& Value)
 {
+	if (ActionState == ECharacterActionState::Dead)
+		return;
 	float MovementMagnitude = 1.f;
 	// Slow down movement if attacking
 	if (ActionState == ECharacterActionState::Attacking || ActionState == ECharacterActionState::Interacting)
@@ -214,6 +249,13 @@ void AMainCharacter::Attack(const FInputActionValue& Value)
 			//}
 		}
 	}
+}
+
+void AMainCharacter::Die()
+{
+	Super::Die();
+	ActionState = ECharacterActionState::Dead;
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void AMainCharacter::ResetCombo()
@@ -372,6 +414,11 @@ void AMainCharacter::EnterUnoccupied()
 	ActionState = ECharacterActionState::Unoccupied;
 }
 
+void AMainCharacter::HitReactEnd()
+{
+	ActionState = ECharacterActionState::Unoccupied;
+}
+
 void AMainCharacter::AttackEnd()
 {
 	ActionState = ECharacterActionState::Unoccupied;
@@ -392,5 +439,44 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started , this, &AMainCharacter::Interact);
 		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &AMainCharacter::Attack);
 		//EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Completed, this, &AMainCharacter::StopAttack);
+	}
+}
+
+float AMainCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	HandleDamage(DamageAmount);
+	if (MainCharacterOverlay && Attributes)
+	{
+		MainCharacterOverlay->SetHealthPercentage(Attributes->GetHealthPercent());
+
+		if (!Attributes->IsAlive())
+		{
+			Die();
+		}
+
+	}
+	return DamageAmount;
+}
+
+void AMainCharacter::SetOverlappingItem(AItem* Item)
+{
+	OverlappingItem = Item;
+}
+
+void AMainCharacter::AddSouls(ASoul* Soul)
+{
+	if (Attributes && MainCharacterOverlay)
+	{
+		Attributes->AddSouls(Soul->GetSouls());
+		MainCharacterOverlay->SetSoulCount(Attributes->GetSouls());
+	}
+}
+
+void AMainCharacter::AddGold(ATreasure* Treasure)
+{
+	if (Attributes && MainCharacterOverlay)
+	{
+		Attributes->AddGold(Treasure->GetGold());
+		MainCharacterOverlay->SetGoldCount(Attributes->GetGold());
 	}
 }

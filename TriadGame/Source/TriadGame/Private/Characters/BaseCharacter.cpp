@@ -6,6 +6,7 @@
 #include "Components/AttributeComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/CapsuleComponent.h"
+#include "TriadGame/DebugMacros.h"
 #include "Weapon.h"
 
 ABaseCharacter::ABaseCharacter()
@@ -25,6 +26,17 @@ void ABaseCharacter::Attack(const FInputActionValue& Value)
 {
 }
 
+void ABaseCharacter::GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter)
+{
+	if (IsAlive() && Hitter)
+		DirectionalHitReaction(Hitter->GetActorLocation());
+	else
+		Die();
+
+	PlayHitSound(ImpactPoint);
+	SpawnHitParticles(ImpactPoint);
+}
+
 bool ABaseCharacter::CanAttack()
 {
 	return false;
@@ -32,6 +44,8 @@ bool ABaseCharacter::CanAttack()
 
 void ABaseCharacter::Die()
 {
+	PlayDeathMontage();
+	Tags.Add(FName("Dead"));
 }
 
 bool ABaseCharacter::IsAlive()
@@ -59,6 +73,35 @@ void ABaseCharacter::PlayMontageSection(UAnimMontage* AnimMontage, const FName& 
 		AnimInstance->Montage_Play(AnimMontage);
 		AnimInstance->Montage_JumpToSection(SectionName, AnimMontage);
 	}
+}
+
+void ABaseCharacter::StopAttackMontage()
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance)
+	{
+		AnimInstance->Montage_Stop(0.25f, AttackMontage);
+	}
+}
+
+FVector ABaseCharacter::GetTranslationWarpTarget()
+{
+	if (CombatTarget == nullptr) return FVector();
+	const FVector CombatTargetLocation = CombatTarget->GetActorLocation();
+	const FVector Location = GetActorLocation();
+	const FVector TargetToMe = (Location - CombatTargetLocation).GetSafeNormal();
+
+	return (CombatTargetLocation + (TargetToMe * WarpTargetDistance));
+}
+
+FVector ABaseCharacter::GetRotationWarpTarget()
+{
+	// TODO: This does not look correct
+	if (CombatTarget)
+	{
+		return CombatTarget->GetActorLocation();
+	}
+	return FVector();
 }
 
 int32 ABaseCharacter::PlayRandomMontageSection(UAnimMontage* AnimMontage, const TArray<FName>& SectionNames)

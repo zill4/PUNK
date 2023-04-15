@@ -38,4 +38,10 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, Category = "Movement | Character State")
 	ECharacterState CharacterState;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Movement | Action State")
+	ECharacterActionState CharacterActionState;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Action State")
+	TEnumAsByte<EDeathPose> DeathPose;
 };

@@ -5,8 +5,10 @@
 #include "TriadGame/DebugMacros.h"
 #include "Components/SphereComponent.h"
 #include "Characters/MainCharacter.h"
+#include "Interfaces/PickupInterface.h"
 #include "NiagaraComponent.h"
-
+#include "NiagaraFunctionLibrary.h"
+#include "Kismet/GameplayStatics.h"
 
 AItem::AItem()
 {
@@ -33,6 +35,22 @@ void AItem::BeginPlay()
 	Sphere->OnComponentEndOverlap.AddDynamic(this, &AItem::OnSphereEndOverlap);
 }
 
+void AItem::SpawnPickupSystem()
+{
+	if (PickupEffect)
+	{
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, PickupEffect, GetActorLocation());
+	}
+}
+
+void AItem::SpawnPickupSound()
+{
+	if (PickupSound)
+	{
+		UGameplayStatics::SpawnSoundAtLocation(this, PickupSound, GetActorLocation());
+	}
+}
+
 float AItem::TransformSin()
 {
 	return Amplitude * FMath::Sin(RunningTime * Frequency);
@@ -45,17 +63,17 @@ float AItem::TransformCos()
 
 void AItem::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (AMainCharacter* MainCharacter = Cast<AMainCharacter>(OtherActor))
+	if (IPickupInterface* PickUp = Cast<IPickupInterface>(OtherActor))
 	{
-		MainCharacter->SetOverlappingItem(this);
+		PickUp->SetOverlappingItem(this);
 	}
 }
 
 void AItem::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	if (AMainCharacter* MainCharacter = Cast<AMainCharacter>(OtherActor))
+	if (IPickupInterface* PickUp = Cast<IPickupInterface>(OtherActor))
 	{
-		MainCharacter->SetOverlappingItem(nullptr);
+		PickUp->SetOverlappingItem(nullptr);
 	}
 }
 

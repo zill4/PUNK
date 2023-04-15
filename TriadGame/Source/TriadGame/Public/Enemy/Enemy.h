@@ -19,7 +19,7 @@ public:
 	AEnemy();
 
 	virtual void Tick(float DeltaTime) override;
-	virtual void GetHit_Implementation(const FVector& ImpactPoint) override;
+	virtual void GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter) override;
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 	virtual void Destroyed() override;
 
@@ -39,9 +39,6 @@ protected:
 	void MoveToTarget(AActor* Target);
 
 	AActor* ChoosePatrolTarget();
-
-	UPROPERTY(BlueprintReadOnly)
-	TEnumAsByte<EDeathPose> DeathPose;
 
 	UPROPERTY(BlueprintReadOnly)
 	EEnemyState EnemyState = EEnemyState::Patrolling;
@@ -80,6 +77,9 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	float MaxAttackTime = 1.f;
 
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	TSubclassOf<class ASoul> SoulClass;
+
 	UPROPERTY()
 	AAIController* EnemyController;
 	/*
@@ -100,9 +100,6 @@ private:
 
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UPawnSensingComponent* PawnSensing;
-	
-	UPROPERTY()
-	AActor* CombatTarget;
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class AWeapon> WeaponClass;

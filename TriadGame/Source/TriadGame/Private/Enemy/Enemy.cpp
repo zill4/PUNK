@@ -8,6 +8,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "HUD/HealthBarComponent.h"
 #include "AIController.h"
+#include "Soul.h"
 #include "Weapon.h"
 
 AEnemy::AEnemy()
@@ -109,23 +110,28 @@ void AEnemy::CheckCombatTarget()
 	}
 }
 
-void AEnemy::GetHit_Implementation(const FVector& ImpactPoint)
+void AEnemy::GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter)
 {
 	ShowHealthBar();
-	if (IsAlive())
-		DirectionalHitReaction(ImpactPoint);
-	else
-		Die();
-	
-	PlayHitSound(ImpactPoint);
-	SpawnHitParticles(ImpactPoint);
+	Super::GetHit_Implementation(ImpactPoint, Hitter);
+	GetWorldTimerManager().ClearTimer(PatrolTimer);
+	GetWorldTimerManager().ClearTimer(AttackTimer);
+	SetWeaponCollisionEnabled(ECollisionEnabled::NoCollision);
+	StopAttackMontage();
 }
 
 float AEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	HandleDamage(DamageAmount);
 	CombatTarget = EventInstigator->GetPawn();
-	ChaseTarget();
+	if (IsOutsideCombatRadius())
+	{
+		ChaseTarget();
+	}
+	else
+	{
+		EnemyState = EEnemyState::Attacking;
+	}
 	return DamageAmount;
 }
 
@@ -140,17 +146,31 @@ void AEnemy::Destroyed()
 
 void AEnemy::Die()
 {
+	Super::Die();
 	EnemyState = EEnemyState::Dead;
 	HideHealthBar();
-	PlayDeathMontage();
 	GetWorldTimerManager().ClearTimer(AttackTimer);
 	DisableCapsuleCollision();
 	SetLifeSpan(DeathDespawnTime);
 	GetCharacterMovement()->bOrientRotationToMovement = false;
+	SetWeaponCollisionEnabled(ECollisionEnabled::NoCollision);
+	UWorld* World = GetWorld();
+	if (World && SoulClass && Attributes)
+	{
+		const FVector SpawnLocation = GetActorLocation() + FVector(0.f, 0.f, 50.f);
+		ASoul* SpawnedSoul = World->SpawnActor<ASoul>(SoulClass, SpawnLocation, GetActorRotation());
+		
+		SpawnedSoul->SetSouls(Attributes->GetSouls());
+	}
 }
 
 void AEnemy::Attack()
 {
+	if (CombatTarget && CombatTarget->ActorHasTag(FName("Dead")))
+	{
+		CombatTarget = nullptr;
+		return;
+	}
 	EnemyState = EEnemyState::Engaged;
 	PlayAttackMontage();
 }

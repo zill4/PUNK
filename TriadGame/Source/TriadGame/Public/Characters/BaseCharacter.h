@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "Interfaces/HitInterface.h"
 #include "InputActionValue.h"
+#include "Characters/CharacterTypes.h"
 #include "BaseCharacter.generated.h"
 
 class AWeapon;
@@ -28,6 +29,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	virtual void Attack(const FInputActionValue& Value);
+	virtual void GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter) override;
 	virtual bool CanAttack();
 	virtual void Die();
 	virtual bool IsAlive();
@@ -35,6 +37,14 @@ protected:
 	void PlayHitSound(const FVector& ImpactPoint);
 	void SpawnHitParticles(const FVector& ImpactPoint);
 	void PlayMontageSection(UAnimMontage* AnimMontage, const FName& SectionName);
+	void StopAttackMontage();
+
+	UFUNCTION(BlueprintCallable)
+	FVector GetTranslationWarpTarget();
+
+	UFUNCTION(BlueprintCallable)
+	FVector GetRotationWarpTarget();
+
 	int32 PlayRandomMontageSection(UAnimMontage* AnimMontage, const TArray<FName>& SectionNames);
 	virtual int32 PlayAttackMontage();
 	virtual int32 PlayDeathMontage();
@@ -46,6 +56,11 @@ protected:
 	void DirectionalHitReaction(const FVector& ImpactPoint);
 	void PlayHitReactMontage(const FName& SectionName);
 
+	UPROPERTY(BlueprintReadOnly, Category = "Combat")
+	AActor* CombatTarget;
+
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	double WarpTargetDistance = 75.f;
 
 	// Weapon
 	UPROPERTY(VisibleAnywhere, Category = "Weapon")
@@ -75,6 +90,10 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Particles")
 	UParticleSystem* HitParticles;
-public:	
 
+	UPROPERTY(BlueprintReadOnly)
+	TEnumAsByte<EDeathPose> DeathPose;
+
+public:	
+	FORCEINLINE TEnumAsByte<EDeathPose> GetDeathPose() const { return DeathPose; }
 };

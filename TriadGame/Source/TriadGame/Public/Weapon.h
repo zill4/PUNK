@@ -40,7 +40,8 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent)
 	void CreateFields(const FVector& FieldLocation);
 
-	bool ActorIsSameType(AActor* OtherActor, const FName& ActorName);
+	// TODO: this is hard coded for enemy type, need to change that to be more generic
+	bool ActorIsSameType(AActor* OtherActor);
 
 	void ExecuteGetHit(FHitResult& HitResult);
 
